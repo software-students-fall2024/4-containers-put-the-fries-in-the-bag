@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0ac192796ec925e8dfbcefb5663e74c3a0764f2b8c0f24b30693a3985faaf2d1"
+            "sha256": "2bc8d641b78a45bae7a78fcb155869dc17ae6c907a07904996ed204cdceb615d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -160,7 +160,7 @@
                 "sha256:468dff3b89520b474c0397703366b7b95eebe6303f108adf9b19da1f702be87a",
                 "sha256:81aa267dddf68cbfe8029c42ca9ec6a4ab3b22371d1c450abc54422577b4512c"
             ],
-            "markers": "python_version >= '3.11'",
+            "markers": "python_version >= '3.8'",
             "version": "==0.3.9"
         },
         "dlib": {
@@ -176,6 +176,14 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==2.7.0"
+        },
+        "exceptiongroup": {
+            "hashes": [
+                "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b",
+                "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==1.2.2"
         },
         "face-recognition": {
             "hashes": [
@@ -495,6 +503,15 @@
             "markers": "python_version >= '3.8'",
             "version": "==8.3.3"
         },
+        "tomli": {
+            "hashes": [
+                "sha256:3f646cae2aec94e17d04973e4249548320197cfabdf130015d023de4b74d8ab8",
+                "sha256:a5c57c3d1c56f5ccdf89f6523458f60ef716e210fc47c4cfb188c5ba473e0391"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==2.1.0"
+        },
         "tomlkit": {
             "hashes": [
                 "sha256:7a974427f6e119197f670fbbbeae7bef749a6c14e793db934baefc1b5f03efde",
@@ -502,6 +519,14 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==0.13.2"
+        },
+        "typing-extensions": {
+            "hashes": [
+                "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d",
+                "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==4.12.2"
         }
     },
     "develop": {}

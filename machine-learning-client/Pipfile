@@ -12,6 +12,7 @@ pymongo = "*"
 cmake = "*"
 pytest = "*"
 coverage = "*"
+tomli = "*"
 
 [dev-packages]
 
