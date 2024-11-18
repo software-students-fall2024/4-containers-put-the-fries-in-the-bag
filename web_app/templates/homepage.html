@@ -1,67 +1,15 @@
-{% extends "base.html" %}
-
-{% block title %}Home - HarryFace{% endblock %}
-
-{% block content %}
-<div class="home-page">
-    <header class="header">
-        <h1>Welcome, {{ username }} | Monday, October 18</h1>
-    </header>
-
-    <div class="dashboard">
-        <div class="card attendance">
-            <h2>You’ve attended 90% of your classes this semester</h2>
-            <ul class="attendance-list">
-                <li>
-                    Monday, October 28
-                    <span class="status green"></span>
-                </li>
-                <li>
-                    Wednesday, October 30
-                    <span class="status green"></span>
-                </li>
-                <li>
-                    Monday, November 4
-                    <span class="status green"></span>
-                </li>
-                <li>
-                    Wednesday, November 6
-                    <span class="status red"></span>
-                </li>
-                <li>
-                    Monday, November 11
-                    <span class="status green"></span>
-                </li>
-                <li>
-                    Wednesday, November 13
-                    <span class="status green"></span>
-                </li>
-                <li>
-                    Monday, November 18
-                    <span class="status green"></span>
-                </li>
-            </ul>
-            <button class="btn">View Details</button>
-        </div>
-
-        <div class="card profile">
-            <h2>Alex Ruan</h2>
-            <div class="profile-actions">
-                <button class="btn profile-btn">Profile</button>
-                <button class="btn settings-btn">Settings</button>
-                <button class="btn logout-btn">Logout</button>
-            </div>
-        </div>
-
-        <div class="card course">
-            <h2>Software Engineering</h2>
-            <p>CSCI-UA 474</p>
-            <p>Prof. Amos Bloomberg</p>
-            <a href="mailto:amos@cs.nyu.edu">amos@cs.nyu.edu</a>
-            <div class="button-container">
-                <button class="btn">Course Page</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Harry Potter Look-Alike</title>
+    <script src="/static/js/camera.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Find Your Harry Potter Look-Alike</h1>
+    <video id="video" autoplay></video>
+    <button id="capture">Capture Photo</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="result"></div>
+</body>
+</html>

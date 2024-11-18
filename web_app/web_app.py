@@ -25,7 +25,7 @@ def home():
     """This is the home page."""
     if "username" in session:
         return redirect(url_for("homepage"))
-    return render_template("homepage.html")
+    return render_template("login.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
