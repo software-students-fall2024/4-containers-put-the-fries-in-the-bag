@@ -131,67 +131,53 @@ def login():
     Login page
     """
     if request.method == "POST":
-        if "username" in request.form and "password" in request.form:
-            # Handle username/password login
+        # Ensure both username/password and image_data are provided
+        if "username" in request.form and "password" in request.form and "image_data" in request.form:
+            print("Got to username/password and image_data check", flush=True)
+
+            # Extract data
             username = request.form.get("username", "").strip()
             password = request.form.get("password")
+            image_data = request.form.get("image_data")
             error = None
 
+            # Validate username/password
             if not username or not password:
                 error = "Username and Password are required."
                 return render_template("login.html", error=error)
 
             user = users_collection.find_one({"username": username})
-            if user and check_password_hash(user["password"], password):
-                session["username"] = username
-                return redirect(url_for("home"))
-            else:
+            if not user or not check_password_hash(user["password"], password):
                 error = "Invalid username or password."
                 return render_template("login.html", error=error)
 
-        elif "image_data" in request.form:
-            # Handle facial recognition login
-            image_data = request.form.get("image_data")
+            # Validate facial recognition
             if not image_data:
-                return render_template(
-                    "verify_result.html", result="Image capture failed"
-                )
+                return render_template("verify_result.html", result="Image capture failed")
 
             image_bytes = decode_base64_image(image_data)
-            users = list(users_collection.find())
-            stored_encodings = [user["encoding"] for user in users]
-
+            stored_encodings = [user["encoding"]]  # Compare against this user's encoding
             response = recognize_face(stored_encodings, image_bytes)
-            print("recognize_face response:", response)  # Debug print
+
+            print("Facial recognition response:", response, flush=True)
             if "error" in response:
                 return render_template("verify_result.html", result=response["error"])
 
-            if response["result"] == "verified":
-                matched_index = response.get("matched_index")
-                print("matched_index:", matched_index)  # Debug print
-                if matched_index is not None:
-                    matched_index = int(matched_index)
-                    if 0 <= matched_index < len(users):
-                        matched_user = users[matched_index]
-                        print("matched_user:", matched_user)  # Debug print
-                        print("matched_user keys:", matched_user.keys())  # Debug print
-                        session["username"] = matched_user["username"]
-                        return redirect(url_for("home"))
-                else:
-                    return render_template(
-                        "verify_result.html",
-                        result="Face recognized but user not found",
-                    )
-            else:
-                return render_template(
-                    "verify_result.html", result="Face not recognized"
-                )
+            if response.get("result") != "verified":
+                return render_template("verify_result.html", result="Face not recognized")
+
+            # If both checks pass, login is successful
+            session["username"] = username
+            return redirect(url_for("home"))
+
         else:
-            # Invalid form submission
-            error = "Invalid login attempt."
+            # If any required field is missing, show an error
+            error = "Username, Password, and Facial Recognition are all required."
             return render_template("login.html", error=error)
 
+    # Render login page for GET requests
     return render_template("login.html")
+
 
 
 @app.route("/logout", methods=["POST"])
@@ -204,4 +190,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5001, debug=True)
