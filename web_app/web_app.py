@@ -2,181 +2,82 @@
 This is the web application code.
 """
 
-import os
-import base64
-import json
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash, check_password_hash
-import requests
+import bcrypt
+import os
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "SECRET_KEY")
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # Max 16 MB upload size
+app.config["SESSION_PERMANENT"] = False
 
 mongo_uri = os.getenv("MONGO_URI", "mongodb://mongodb:27017/")
 client = MongoClient(mongo_uri)
-db = client["attendify"]
+db = client["harryface"]
 users_collection = db["users"]
 
 
-def decode_base64_image(image_data):
-    """
-    Decode base64 image data to bytes
-    """
-    header, encoded = image_data.split(",", 1)
-    image_bytes = base64.b64decode(encoded)
-    return image_bytes
-
-
-def encode_face(image_bytes):
-    """
-    Encode face from image bytes
-    """
-    files = {"file": ("image.jpg", image_bytes, "image/jpeg")}
-    response = requests.post(
-        "http://ml-client:5000/encode_face", files=files, timeout=10
-    )
-    return response.json()
-
-
-def recognize_face(stored_encodings, image_bytes):
-    """
-    Recognize face from image bytes
-    """
-    files = {"file": ("test_image.jpg", image_bytes, "image/jpeg")}
-    data = {"stored_encodings": json.dumps(stored_encodings)}
-    response = requests.post(
-        "http://ml-client:5000/recognize_face", files=files, data=data, timeout=10
-    )
-    return response.json()
-
-
 @app.route("/")
-def welcome():
-    """
-    Welcome page
-    """
-    return render_template("welcome.html")
-
-
-@app.route("/home")
 def home():
-    """
-    Home page
-    """
-    if "username" not in session:
-        return redirect(url_for("login"))
-    return render_template("home.html", username=session["username"])
-
-
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    """
-    Signup page
-    """
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        email = request.form.get("email", "").strip()
-        password = request.form.get("password")
-        image_data = request.form.get("image_data")
-        error = None
-
-        if not username or not email or not password:
-            error = "Username, Email, and Password are required."
-            return render_template("signup.html", error=error)
-
-        if users_collection.find_one({"email": email}):
-            error = "Email is already registered."
-            return render_template("signup.html", error=error)
-
-        if users_collection.find_one({"username": username}):
-            error = "Username is already taken."
-            return render_template("signup.html", error=error)
-
-        if not image_data:
-            error = "Image data is required."
-            return render_template("signup.html", error=error)
-
-        image_bytes = decode_base64_image(image_data)
-        response = encode_face(image_bytes)
-        if "error" in response:
-            return render_template("signup.html", error=response["error"])
-
-        encoding = response["encoding"]
-        hashed_password = generate_password_hash(password)
-        users_collection.insert_one(
-            {
-                "username": username,
-                "email": email,
-                "password": hashed_password,
-                "encoding": encoding,
-            }
-        )
-
-        return redirect(url_for("login"))
-
-    return render_template("signup.html")
+    """This is the home page."""
+    if "username" in session:
+        return redirect(url_for("homepage"))
+    return render_template("homepage.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """
-    Login page
-    """
+    """Log in page for registered users."""
     if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password")
-        image_data = request.form.get("image_data")
-        error = None
-
-        if not username or not password or not image_data:
-            error = "Username, password, and facial recognition are required."
-            return render_template("login.html", error=error)
+        username = request.form["username"]
+        password = request.form["password"].encode("utf-8")
 
         user = users_collection.find_one({"username": username})
-
-        if not user:
-            error = "User not found."
-            return render_template("login.html", error=error)
-
-        # Check password
-        if not check_password_hash(user["password"], password):
-            error = "Invalid password."
-            return render_template("login.html", error=error)
-
-        # Check facial recognition
-        image_bytes = decode_base64_image(image_data)
-        stored_encoding = user.get("encoding")
-
-        if not stored_encoding:
-            return render_template(
-                "login.html", error="No facial data found for this user."
-            )
-
-        response = recognize_face([stored_encoding], image_bytes)
-        if "error" in response:
-            return render_template("login.html", error=response["error"])
-
-        if response["result"] == "verified":
+        if user and bcrypt.checkpw(password, user["password"]):
             session["username"] = username
-            return redirect(url_for("home"))
+            session.permanent = False
+            return redirect(url_for("homepage"))
         else:
-            return render_template("login.html", error="Face not recognized.")
-
+            flash("Invalid username or password. Please try again.")
+            return redirect(url_for("login"))
     return render_template("login.html")
 
 
-@app.route("/logout", methods=["POST"])
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Registration page for new users."""
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"].encode("utf-8")
+
+        if users_collection.find_one({"username": username}):
+            flash("Username already exists. Please choose a different one.")
+        else:
+            hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
+            users_collection.insert_one(
+                {"username": username, "password": hashed_password}
+            )
+            flash("Registration successful! Please log in.")
+            return redirect(url_for("login"))
+    return render_template("register.html")
+
+
+@app.route("/logout")
 def logout():
-    """
-    Logout route
-    """
-    session.pop("username", None)
+    """Logs user out and clears session."""
+    session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/homepage")
+def homepage():
+    """This is the homepage for logged-in users."""
+    if "username" not in session:
+        return redirect(url_for("login"))
+    return render_template("homepage.html", username=session["username"])
 
 
 if __name__ == "__main__":
