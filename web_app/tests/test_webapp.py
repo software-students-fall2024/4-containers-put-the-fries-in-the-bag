@@ -2,33 +2,34 @@
 Unit tests for the web_app module.
 """
 
+# pylint: disable=redefined-outer-name
+
 import pytest
-from web_app.web_app import app, users_collection
-import bcrypt
+from web_app.web_app import app
 
 
 class MockMongoCollection:
+    """Mock MongoDB collection for testing database operations."""
+
     def __init__(self):
-        """Init."""
+        """Initialize a mock database."""
         self.data = {}
 
     def find_one(self, query):
-        """Imitate find_one method."""
+        """Simulate the MongoDB find_one method."""
         key = query.get("username")
         return self.data.get(key)
 
     def insert_one(self, document):
-        """Imitate insert_one method."""
+        """Simulate the MongoDB insert_one method."""
         self.data[document["username"]] = document
 
 
 @pytest.fixture
 def client(monkeypatch):
-    """Set up mock databse and client for testing."""
+    """Set up mock database and client for testing."""
     mock_collection = MockMongoCollection()
-
     monkeypatch.setattr("web_app.web_app.users_collection", mock_collection)
-    print(f"users_collection after monkeypatch: {users_collection}")
 
     app.config["TESTING"] = True
     with app.app_context():
@@ -39,14 +40,12 @@ def client(monkeypatch):
 def test_mock_database():
     """Test mock database."""
     mock_db = MockMongoCollection()
-
     mock_db.insert_one(
         {
             "username": "testuser",
             "password": b"$2b$12$KIX9B0O.NHih9kFya4mPQOm9lGjpdQbs51q8g8IWyPtQLcs4/1eS2",
         }
     )
-
     user = mock_db.find_one({"username": "testuser"})
     assert user is not None
     assert user["username"] == "testuser"
@@ -92,11 +91,8 @@ def test_homepage_access(client):
         session["username"] = "testuser"
 
     response = client.get("/homepage")
-
     assert response.status_code == 200
     assert b"testuser" in response.data
-
-    assert response.status_code == 200
     assert b"Welcome, testuser!" in response.data
 
 
