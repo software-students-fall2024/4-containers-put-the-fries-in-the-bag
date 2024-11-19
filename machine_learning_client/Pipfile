@@ -4,17 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pylint = "*"
 black = "*"
 opencv-python = "*"
 pymongo = "*"
 cmake = "*"
-pytest = "*"
-coverage = "*"
-tomli = "*"
 face-recognition = "*"
 flask = "*"
-python-dotenv = "*"
+
 
 [dev-packages]
 

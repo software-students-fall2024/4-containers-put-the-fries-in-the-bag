@@ -26,8 +26,11 @@ RUN pip install pipenv && pipenv install --deploy --ignore-pipfile
 # Copy the application code
 COPY . .
 
+# Copy the images folder
+COPY images /app/images
+
 # Expose the port the Flask app runs on
 EXPOSE 5000
 
 # Command to run the Flask application
-CMD ["pipenv", "run", "python", "ml_client.py"]
+CMD ["pipenv", "run", "flask", "run", "--host=0.0.0.0", "--port=5000"]
