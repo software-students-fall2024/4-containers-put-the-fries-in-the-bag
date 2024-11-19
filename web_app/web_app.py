@@ -126,7 +126,7 @@ def capture():
         return jsonify({"error": "No image data received"}), 400
 
     # Decode base64 image data
-    encoded = image_data.split(",", 1)
+    header, encoded = image_data.split(",", 1)
     image_bytes = base64.b64decode(encoded)
 
     # Send image to ML client for face recognition
