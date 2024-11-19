@@ -5,7 +5,9 @@ Unit tests for the web_app module.
 # pylint: disable=redefined-outer-name
 
 import pytest
-from web_app.web_app import app
+from web_app.web_app import app, users_collection
+import io
+from werkzeug.datastructures import FileStorage
 
 
 class MockMongoCollection:
@@ -93,7 +95,8 @@ def test_homepage_access(client):
     response = client.get("/homepage")
     assert response.status_code == 200
     assert b"testuser" in response.data
-    assert b"Welcome, testuser!" in response.data
+    assert b"Welcome to HarryFace, testuser" in response.data  
+
 
 
 def test_login_failure(client):
@@ -123,7 +126,8 @@ def test_register_and_login(client):
         follow_redirects=True,
     )
     assert response.status_code == 200
-    assert b"Welcome, flowuser!" in response.data
+    assert b"Welcome to HarryFace, flowuser" in response.data  
+
 
 
 def test_logout(client):
@@ -150,3 +154,54 @@ def test_flash_message_display(client):
         follow_redirects=True,
     )
     assert b"Invalid username or password. Please try again." in response.data
+
+def test_capture_photo_without_image_data(client):
+    """Test the capture endpoint without providing image data."""
+    response = client.post("/capture", json={})
+    assert response.status_code == 400
+    assert b"No image data received" in response.data
+
+def test_match_face_success(client, monkeypatch):
+    """Test the match_face endpoint with a simulated successful response."""
+    def mock_post(*args, **kwargs):
+        class MockResponse:
+            def __init__(self):
+                self.status_code = 200
+            def json(self):
+                return {"matched_character": "Harry Potter"}
+            def raise_for_status(self):
+                pass  
+
+        return MockResponse()
+
+    monkeypatch.setattr("requests.post", mock_post)
+
+    with client.session_transaction() as session:
+        session["username"] = "testuser"
+
+    data = {
+        "file": (io.BytesIO(b"fake_image_data"), "image.jpg")
+    }
+    response = client.post("/match_face", data=data, content_type='multipart/form-data')
+    assert response.status_code == 200
+    assert b"Harry Potter" in response.data
+
+
+def test_protected_routes_redirect(client):
+    """Test access to protected routes without login redirects to login page."""
+    response = client.get("/homepage", follow_redirects=True)
+    assert response.status_code == 200
+    assert b"login" in response.data
+
+def test_login_success(client):
+    """Test successful login creates session and redirects to homepage."""
+    client.post("/register", data={"username": "testloginuser", "password": "testloginpass"})
+
+    response = client.post(
+        "/login",
+        data={"username": "testloginuser", "password": "testloginpass"},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b"Welcome to HarryFace, testloginuser" in response.data  
+
