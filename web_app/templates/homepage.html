@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Harry Potter Look-Alike</title>
-    <script src="/static/js/camera.js"></script>
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <meta charset="UTF-8">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Find Your Harry Potter Look-Alike</h1>
-    {% if username %}
-        <p>Welcome, {{ username }}!</p>
-        <form action="{{ url_for('logout') }}" method="GET" style="display:inline;">
-            <button type="submit">Logout</button>
-        </form>
-    {% endif %}
-    <video id="video" autoplay></video>
-    <button id="capture">Capture Photo</button>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <div id="result"></div>
+    <div class="page-layout">
+        <h2>Welcome to HarryFace, {{ username }}</h2>
+        <div id="faceCapture">
+            <video id="video" autoplay></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+            <button type="button" id="capture">Capture Photo</button>
+        </div>
+        <div id="result">
+            <!-- Matched character will be displayed here -->
+        </div>
+        <button type="button" id="logoutButton">Logout</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
 </body>
 </html>
