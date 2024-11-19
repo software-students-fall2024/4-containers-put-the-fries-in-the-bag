@@ -4,10 +4,11 @@ Unit tests for the web_app module.
 
 # pylint: disable=redefined-outer-name
 
-import pytest
-from web_app.web_app import app, users_collection
 import io
-from werkzeug.datastructures import FileStorage
+import pytest
+
+# import werkzeug.datastructures
+from web_app.web_app import app
 
 
 class MockMongoCollection:
@@ -95,8 +96,7 @@ def test_homepage_access(client):
     response = client.get("/homepage")
     assert response.status_code == 200
     assert b"testuser" in response.data
-    assert b"Welcome to HarryFace, testuser" in response.data  
-
+    assert b"Welcome to HarryFace, testuser" in response.data
 
 
 def test_login_failure(client):
@@ -126,8 +126,7 @@ def test_register_and_login(client):
         follow_redirects=True,
     )
     assert response.status_code == 200
-    assert b"Welcome to HarryFace, flowuser" in response.data  
-
+    assert b"Welcome to HarryFace, flowuser" in response.data
 
 
 def test_logout(client):
@@ -155,22 +154,33 @@ def test_flash_message_display(client):
     )
     assert b"Invalid username or password. Please try again." in response.data
 
+
 def test_capture_photo_without_image_data(client):
     """Test the capture endpoint without providing image data."""
     response = client.post("/capture", json={})
     assert response.status_code == 400
     assert b"No image data received" in response.data
 
+
 def test_match_face_success(client, monkeypatch):
     """Test the match_face endpoint with a simulated successful response."""
-    def mock_post(*args, **kwargs):
+
+    def mock_post():
+        """Mock post."""
+
         class MockResponse:
+            """Mock response."""
+
             def __init__(self):
+                """Init."""
                 self.status_code = 200
+
             def json(self):
+                """Json."""
                 return {"matched_character": "Harry Potter"}
+
             def raise_for_status(self):
-                pass  
+                """Raise status for testing."""
 
         return MockResponse()
 
@@ -179,10 +189,8 @@ def test_match_face_success(client, monkeypatch):
     with client.session_transaction() as session:
         session["username"] = "testuser"
 
-    data = {
-        "file": (io.BytesIO(b"fake_image_data"), "image.jpg")
-    }
-    response = client.post("/match_face", data=data, content_type='multipart/form-data')
+    data = {"file": (io.BytesIO(b"fake_image_data"), "image.jpg")}
+    response = client.post("/match_face", data=data, content_type="multipart/form-data")
     assert response.status_code == 200
     assert b"Harry Potter" in response.data
 
@@ -193,9 +201,12 @@ def test_protected_routes_redirect(client):
     assert response.status_code == 200
     assert b"login" in response.data
 
+
 def test_login_success(client):
     """Test successful login creates session and redirects to homepage."""
-    client.post("/register", data={"username": "testloginuser", "password": "testloginpass"})
+    client.post(
+        "/register", data={"username": "testloginuser", "password": "testloginpass"}
+    )
 
     response = client.post(
         "/login",
@@ -203,5 +214,4 @@ def test_login_success(client):
         follow_redirects=True,
     )
     assert response.status_code == 200
-    assert b"Welcome to HarryFace, testloginuser" in response.data  
-
+    assert b"Welcome to HarryFace, testloginuser" in response.data

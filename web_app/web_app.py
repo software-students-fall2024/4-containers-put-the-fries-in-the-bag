@@ -53,9 +53,8 @@ def login():
             session["username"] = username
             session.permanent = False
             return redirect(url_for("homepage"))
-        else:
-            flash("Invalid username or password. Please try again.")
-            return redirect(url_for("login"))
+        flash("Invalid username or password. Please try again.")
+        return redirect(url_for("login"))
     return render_template("login.html")
 
 
@@ -127,7 +126,7 @@ def capture():
         return jsonify({"error": "No image data received"}), 400
 
     # Decode base64 image data
-    header, encoded = image_data.split(",", 1)
+    encoded = image_data.split(",", 1)
     image_bytes = base64.b64decode(encoded)
 
     # Send image to ML client for face recognition
