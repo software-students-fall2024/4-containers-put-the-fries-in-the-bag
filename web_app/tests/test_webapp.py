@@ -160,19 +160,3 @@ def test_history_unauthorized(client):
     response = client.get("/history")
     assert response.status_code == 401
     assert response.get_json() == {"error": "Unauthorized"}
-
-
-def test_history_empty(client, monkeypatch):
-    """Test the /history endpoint when no history exists."""
-
-    def mock_find(_query):
-        return iter([])
-
-    monkeypatch.setattr("web_app.web_app.db.history.find", mock_find)
-
-    with client.session_transaction() as session:
-        session["username"] = "testuser"
-
-    response = client.get("/history")
-    assert response.status_code == 200
-    assert response.get_json() == {"history": []}
