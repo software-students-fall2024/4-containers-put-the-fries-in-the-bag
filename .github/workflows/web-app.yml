@@ -39,28 +39,3 @@ jobs:
     - name: Run tests
       working-directory: ./web_app
       run: pipenv run pytest tests/
-
-  deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
-
-    - name: Install dependencies
-      working-directory: ./web_app
-      run: pipenv install
-
-    - name: Deploy to Server
-      env:
-        FLASK_APP: web_app.py
-        FLASK_ENV: production
-      working-directory: ./web_app
-      run: |
-        pipenv run flask run --host=0.0.0.0 --port=5000
