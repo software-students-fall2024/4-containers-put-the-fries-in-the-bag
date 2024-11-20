@@ -4,6 +4,8 @@ This is the updated web application code.
 
 import os
 import logging
+from datetime import datetime
+
 from flask import (
     Flask,
     render_template,
@@ -16,6 +18,7 @@ from flask import (
 )
 from pymongo import MongoClient
 from dotenv import load_dotenv
+
 import bcrypt
 import requests
 
@@ -148,7 +151,36 @@ def capture():
         upsert=True,
     )
 
+    # Save match history with timestamp
+    db.history.insert_one(
+        {
+            "username": session["username"],
+            "matched_character": matched_character,
+            "timestamp": datetime.utcnow(),
+        }
+    )
+
     return jsonify({"match": matched_character})
+
+
+@app.route("/history", methods=["GET"])
+def history():
+    """Retrieve match history for the logged-in user."""
+    if "username" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    # Fetch history records from the database, sorted by timestamp (most recent first)
+    history_records = db.history.find({"username": session["username"]}).sort(
+        "timestamp", -1
+    )
+    history_list = [
+        {
+            "character": record["matched_character"],
+            "timestamp": record["timestamp"].isoformat(),
+        }
+        for record in history_records
+    ]
+    return jsonify({"history": history_list})
 
 
 @app.route("/analytics", methods=["GET"])
