@@ -17,6 +17,7 @@ numpy = "*"
 werkzeug = "*"
 bcrypt = "*"
 coverage = "*"
+pytz = "*"
 
 [dev-packages]
 
