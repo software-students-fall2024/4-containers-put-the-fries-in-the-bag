@@ -110,17 +110,24 @@ def capture():
     try:
         response = requests.post(
             f"{ml_client_url}/recognize_face",
-            files={"file": (image_file.filename, image_file.read(), image_file.content_type)},
+            files={
+                "file": (
+                    image_file.filename,
+                    image_file.read(),
+                    image_file.content_type,
+                )
+            },
             timeout=20,  # Increased timeout to accommodate processing time
         )
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        app.logger.error(f"Error communicating with ML service: {e}")
+        app.logger.error("Error communicating with ML service: %s", e)
         return jsonify({"error": "Failed to process image"}), 500
 
     result = response.json()
     if "error" in result:
-        return jsonify({"error": result["error"]}), 400
+        app.logger.error("Error occurred: %s", result["error"])
+        return jsonify({"error": {"message": result["error"], "code": 400}}), 400
 
     matched_character = result.get("matched_character", "No match found")
 

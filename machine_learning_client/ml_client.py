@@ -2,6 +2,8 @@
 Optimized Machine Learning Service for Face Recognition
 """
 
+# pylint: disable=broad-exception-caught
+
 import os
 import logging
 from flask import Flask, request, jsonify
@@ -11,7 +13,9 @@ import numpy as np
 app = Flask(__name__)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # Global variables for encodings and names
 ENCODINGS = []
@@ -96,7 +100,9 @@ def recognize_face():
         else:
             matched_character = NAMES[min_distance_index]
 
-        logging.info("Matched character: %s with distance: %.2f", matched_character, min_distance)
+        logging.info(
+            "Matched character: %s with distance: %.2f", matched_character, min_distance
+        )
         return jsonify({"matched_character": matched_character})
     except Exception as e:
         logging.error("Error during face recognition: %s", str(e))
