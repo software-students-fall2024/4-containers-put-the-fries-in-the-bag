@@ -105,6 +105,7 @@
                                 resultDiv.innerHTML = 'Error: ' + data.error;
                             } else {
                                 resultDiv.innerHTML = `Matched Character: ${data.match}`;
+                                updateChart(); // Refresh chart after a successful match
                             }
                         })
                         .catch(error => {
@@ -116,6 +117,7 @@
                     }
                 }, 'image/png');
             });
+
 
             // Chart.js setup
             const matchChart = new Chart(ctx, {
