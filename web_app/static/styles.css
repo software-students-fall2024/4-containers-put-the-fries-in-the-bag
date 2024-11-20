@@ -14,6 +14,7 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
+    margin-top: 50px; /* Added to match assistant's code */
 }
 
 /* Header Styles */
@@ -127,12 +128,26 @@ form button[type="button"]:hover {
     background-color: #0056b3;
 }
 
-/* Video and Canvas */
-#faceLogin video,
-#faceLogin canvas {
-    width: 100%;
-    border-radius: 8px;
+/* Face Capture Styles */
+#faceCapture {
+    display: inline-block;
+    position: relative;
     margin-top: 1rem;
+}
+
+#video {
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-top: 1rem;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 /* Dashboard Styles */
@@ -253,3 +268,21 @@ form button[type="button"]:hover {
 .logout-btn:hover {
     background-color: #f44336;
 }
+
+/* Additional Styles */
+
+/* Adjusted Capture Button to Use .btn Styles */
+#capture {
+    margin-top: 1rem;
+}
+
+/* If you need any specific styles for #capture beyond .btn, you can add them here */
+
+/* Ensure the Logout Button Uses .btn Styles */
+#logoutButton {
+    margin-top: 1rem;
+}
+
+/* Optional: If you have any specific adjustments for #logoutButton */
+
+/* End of Styles */

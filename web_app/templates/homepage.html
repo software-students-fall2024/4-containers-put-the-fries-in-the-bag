@@ -10,15 +10,65 @@
         <h2>Welcome to HarryFace, {{ username }}</h2>
         <div id="faceCapture">
             <video id="video" autoplay></video>
-            <canvas id="canvas" style="display: none;"></canvas>
-            <button type="button" id="capture">Capture Photo</button>
+            <button type="button" id="capture" class="btn">Capture Photo</button>
         </div>
         <div id="result">
             <!-- Matched character will be displayed here -->
         </div>
-        <a href="{{ url_for('logout') }}" id="logoutButton" class="button">Logout</a>
+        <a href="{{ url_for('logout') }}" id="logoutButton" class="btn">Logout</a>
     </div>
 
-    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+    <!-- Embedded JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const video = document.getElementById('video');
+            const captureBtn = document.getElementById('capture');
+            const resultDiv = document.getElementById('result');
+
+            // Access webcam
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => { video.srcObject = stream; })
+                .catch(error => {
+                    console.error('Error accessing webcam:', error);
+                    resultDiv.innerHTML = 'Error accessing webcam: ' + error.message;
+                });
+
+            captureBtn.addEventListener('click', () => {
+                // Create a canvas to capture the image
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Convert canvas image to Blob
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const formData = new FormData();
+                        formData.append('image', blob, 'capture.png');
+
+                        fetch('/capture', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                resultDiv.innerHTML = 'Error: ' + data.error;
+                            } else {
+                                resultDiv.innerHTML = `Matched Character: ${data.match}`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            resultDiv.innerHTML = 'An error occurred while processing the image.';
+                        });
+                    } else {
+                        resultDiv.innerHTML = 'Failed to capture image.';
+                    }
+                }, 'image/png');
+            });
+        });
+    </script>
 </body>
 </html>

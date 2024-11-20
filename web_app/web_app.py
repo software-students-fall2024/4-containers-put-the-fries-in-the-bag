@@ -1,9 +1,9 @@
 """
-This is the web application code.
+This is the updated web application code.
 """
 
 import os
-import base64
+import logging
 from flask import (
     Flask,
     render_template,
@@ -32,10 +32,13 @@ users_collection = db["users"]
 
 ml_client_url = "http://ml-client:5000"
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 
 @app.route("/")
 def home():
-    """This is the home page."""
+    """Home page."""
     if "username" in session:
         return redirect(url_for("homepage"))
     return render_template("login.html")
@@ -86,59 +89,34 @@ def logout():
 
 @app.route("/homepage")
 def homepage():
-    """This is the homepage for logged-in users."""
+    """Homepage for logged-in users."""
     if "username" not in session:
         return redirect(url_for("login"))
     return render_template("homepage.html", username=session["username"])
 
 
-@app.route("/match_face", methods=["POST"])
-def match_face():
-    """Match a captured photo to the closest face image in the images folder."""
-    if "file" not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files["file"]
-    image_data = file.read()
-    try:
-        response = requests.post(
-            f"{ml_client_url}/recognize_face",
-            files={"file": ("image.jpg", image_data, "image/jpeg")},
-            timeout=10,  # Add a timeout of 10 seconds
-        )
-        response.raise_for_status()  # Raise an exception for HTTP errors
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": str(e)}), 500
-
-    result = response.json()
-    if "error" in result:
-        return jsonify({"error": result["error"]}), 400
-    return jsonify(result)
-
-
 @app.route("/capture", methods=["POST"])
 def capture():
     """Handle image capture and perform face matching."""
-    data = request.get_json()
-    image_data = data.get("image")
+    if "username" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
 
-    if not image_data:
-        return jsonify({"error": "No image data received"}), 400
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
 
-    # Decode base64 image data
-    header, encoded = image_data.split(",", 1)  # pylint: disable=unused-variable
-    image_bytes = base64.b64decode(encoded)
+    image_file = request.files["image"]
 
     # Send image to ML client for face recognition
     try:
         response = requests.post(
             f"{ml_client_url}/recognize_face",
-            files={"file": ("capture.png", image_bytes, "image/png")},
-            timeout=10,
+            files={"file": (image_file.filename, image_file.read(), image_file.content_type)},
+            timeout=20,  # Increased timeout to accommodate processing time
         )
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error(f"Error communicating with ML service: {e}")
+        return jsonify({"error": "Failed to process image"}), 500
 
     result = response.json()
     if "error" in result:
