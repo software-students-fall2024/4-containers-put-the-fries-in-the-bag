@@ -2,15 +2,12 @@
 Unit tests for the machine_learning_client module
 """
 
-import pytest
+# pylint: disable=redefined-outer-name
+
 import io
-from unittest.mock import patch, MagicMock
-from flask import Flask
-from machine_learning_client.ml_client import (
-    app,
-    load_character_encodings,
-    recognize_face,
-)
+from unittest.mock import patch
+import pytest
+from machine_learning_client.ml_client import app, load_character_encodings
 
 
 @pytest.fixture
@@ -50,10 +47,12 @@ def test_recognize_face_no_file(client):
 def test_recognize_face_no_face_found(client, monkeypatch):
     """Test the recognize_face endpoint when no face is found in the image."""
 
-    def mock_load_image_file(file):
+    def mock_load_image_file(_file):
+        """Mock load image file function."""
         return "mock_image"
 
-    def mock_face_encodings(image):
+    def mock_face_encodings(_image):
+        """Mock face encodings function."""
         return []
 
     monkeypatch.setattr("face_recognition.load_image_file", mock_load_image_file)
@@ -70,16 +69,20 @@ def test_recognize_face_no_face_found(client, monkeypatch):
 def test_recognize_face_successful_match(client, monkeypatch):
     """Test the recognize_face endpoint with a successful face match."""
 
-    def mock_load_image_file(file):
+    def mock_load_image_file(_file):
+        """Mock load image file function."""
         return "mock_image"
 
-    def mock_face_encodings(image):
+    def mock_face_encodings(_image):
+        """Mock face encodings function."""
         return [b"mock_test_encoding"]
 
     def mock_load_character_encodings():
+        """Mock loaf character encodings function."""
         return [b"mock_test_encoding"], ["Harry Potter"]
 
-    def mock_face_distance(encodings, test_encoding):
+    def mock_face_distance(_encodings, _test_encoding):
+        """Mock face distance function."""
         return [0.2]
 
     monkeypatch.setattr("face_recognition.load_image_file", mock_load_image_file)
@@ -101,17 +104,20 @@ def test_recognize_face_successful_match(client, monkeypatch):
 def test_recognize_face_no_match(client, monkeypatch):
     """Test the recognize_face endpoint when no match is found."""
 
-    def mock_load_image_file(file):
+    def mock_load_image_file(_file):
+        """Mock load image file function."""
         return "mock_image"
 
-    def mock_face_encodings(image):
-
+    def mock_face_encodings(_image):
+        """Mock face encodings function."""
         return [b"mock_test_encoding"]
 
     def mock_load_character_encodings():
+        """Mock load character encodings function."""
         return [b"mock_different_encoding"], ["Hermione Granger"]
 
-    def mock_face_distance(encodings, test_encoding):
+    def mock_face_distance(_encodings, _test_encoding):
+        """Mock face distance function."""
         return [0.9]
 
     monkeypatch.setattr("face_recognition.load_image_file", mock_load_image_file)

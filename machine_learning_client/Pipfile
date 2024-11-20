@@ -10,7 +10,7 @@ pymongo = "*"
 cmake = "*"
 face-recognition = "*"
 flask = "*"
-
+pytest = "*"
 
 [dev-packages]
 pylint = "*"
