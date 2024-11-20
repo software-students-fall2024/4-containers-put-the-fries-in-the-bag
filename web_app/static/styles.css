@@ -1,35 +1,58 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
 /* Global Styles */
 body {
     margin: 0;
-    padding: 20px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #f9f9f9;
+    padding: 0;
+    font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f0f4f8;
     color: #333;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 /* Centering Utility Class */
 .page-layout {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 0 20px;
     text-align: center;
-    margin-top: 50px; /* Added to match assistant's code */
 }
 
 /* Header Styles */
-.header {
-    text-align: center;
-    margin: 1rem 0;
+.site-header {
+    width: 100%;
+    background-color: #002855;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.header h1 {
+.site-header h1 {
+    margin: 0;
     font-size: 1.5rem;
-    color: #222;
+}
+
+.site-header nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background-color: #004080;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.site-header nav a:hover {
+    background-color: #0056b3;
 }
 
 /* Button Styles */
-.btn {
+.btn,
+input[type="submit"],
+input[type="button"] {
     display: inline-block;
     background-color: #002855;
     color: white;
@@ -40,12 +63,14 @@ body {
     font-size: 1rem;
     transition: background-color 0.3s;
     margin-top: 1rem;
-    border: none; /* Remove default button border */
-    cursor: pointer; /* Add pointer cursor */
-    outline: none; /* Remove focus outline */
+    border: none;
+    cursor: pointer;
+    outline: none;
 }
 
-.btn:hover {
+.btn:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
     background-color: #004080;
 }
 
@@ -59,6 +84,7 @@ input[type="email"] {
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1rem;
+    box-sizing: border-box;
 }
 
 input[type="text"]:focus,
@@ -69,37 +95,20 @@ input[type="email"]:focus {
     box-shadow: 0 0 4px rgba(0, 40, 85, 0.4);
 }
 
-/* Welcome Page */
-.welcome-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #5ba4ff, #93caff);
-    color: white;
-    text-align: center;
-}
-
-.welcome-page h1 {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-}
-
-.button-container {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
 /* Form Styles */
 form {
     width: 100%;
     max-width: 400px;
     background-color: white;
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    text-align: left;
 }
 
 form label {
@@ -109,180 +118,148 @@ form label {
     color: #222;
 }
 
-form button[type="submit"],
-form button[type="button"] {
-    width: 100%;
-    padding: 0.8rem;
-    margin-top: 1rem;
-    border: none;
-    background-color: #004080;
-    color: white;
-    font-size: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-form button[type="submit"]:hover,
-form button[type="button"]:hover {
-    background-color: #0056b3;
-}
-
 /* Face Capture Styles */
 #faceCapture {
-    display: inline-block;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 1rem;
+    width: 100%;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #video {
     width: 100%;
-    max-width: 640px;
     height: auto;
     border: 2px solid #ccc;
     border-radius: 5px;
-    margin-top: 1rem;
 }
 
+#capture {
+    margin-top: 1rem;
+    width: auto; /* Ensure the button doesn't stretch full width */
+}
+
+
+/* Result Styles */
 #result {
     margin-top: 20px;
     font-size: 18px;
     font-weight: bold;
+    color: #004080;
 }
 
-/* Dashboard Styles */
-.dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-    max-width: 1200px;
+/* History Section */
+#historySection {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: left;
+}
+
+#historyList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#historyList li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Chart Container */
+.chart-container {
+    width: 100%;
+    max-width: 600px;
     margin: 0 auto;
 }
 
-/* Card Styles */
-.card {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
+canvas {
+    width: 100% !important;
+    height: auto !important;
 }
 
-.card h2 {
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-    color: #444;
-}
-
-.card.course .button-container {
-    display: flex;
-    justify-content: center;
+/* Typography Styles */
+h1 {
+    font-size: 2rem;
     margin-top: 1rem;
+    color: #002855;
 }
 
-.card.course .btn {
-    width: 100%;
-    background-color: #002855;
+h2 {
+    font-size: 1.75rem;
+    margin-top: 1rem;
+    color: #002855;
 }
 
-.card.course .btn:hover {
-    background-color: #004080;
+h3 {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    color: #004080;
 }
 
-/* Attendance List */
-.attendance-list {
-    list-style: none;
+/* Link Styles */
+a {
+    color: #004080;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Messages Styles */
+.messages {
+    list-style-type: none;
     padding: 0;
     margin: 1rem 0;
 }
 
-.attendance-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.messages li {
+    padding: 0.8rem;
+    background-color: #ffe6e6;
+    border: 1px solid #ffcccc;
+    border-radius: 4px;
     margin-bottom: 0.5rem;
+    color: #d32f2f;
 }
 
-.status {
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
+/* Responsive Media Queries */
+@media screen and (max-width: 600px) {
+    .page-layout {
+        padding: 0 10px;
+        margin-top: 20px;
+    }
+
+    form {
+        padding: 1rem;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .btn,
+    input[type="submit"],
+    input[type="button"] {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
 }
-
-.status.green {
-    background-color: #4caf50;
-}
-
-.status.red {
-    background-color: #f44336;
-}
-
-.card.attendance .btn {
-    background-color: #004080;
-}
-
-.card.attendance .btn:hover {
-    background-color: #0056b3;
-}
-
-/* Profile Actions */
-.profile-actions {
-    display: flex;
-    gap: 1rem;
-    flex-direction: column;
-}
-
-.profile-btn,
-.settings-btn,
-.logout-btn {
-    border: none;
-    outline: none;
-    color: white;
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.profile-btn {
-    background-color: #004080;
-}
-
-.profile-btn:hover {
-    background-color: #0056b3;
-}
-
-.settings-btn {
-    background-color: #f9a825;
-}
-
-.settings-btn:hover {
-    background-color: #fbc02d;
-}
-
-.logout-btn {
-    background-color: #d32f2f;
-}
-
-.logout-btn:hover {
-    background-color: #f44336;
-}
-
-/* Additional Styles */
-
-/* Adjusted Capture Button to Use .btn Styles */
-#capture {
-    margin-top: 1rem;
-}
-
-/* If you need any specific styles for #capture beyond .btn, you can add them here */
-
-/* Ensure the Logout Button Uses .btn Styles */
-#logoutButton {
-    margin-top: 1rem;
-}
-
-/* Optional: If you have any specific adjustments for #logoutButton */
-
-/* End of Styles */
