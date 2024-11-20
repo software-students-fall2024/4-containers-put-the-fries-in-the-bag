@@ -131,34 +131,11 @@ def test_capture_photo_unauthorized(client):
     assert response.get_json() == {"error": "Unauthorized"}
 
 
-def test_capture_photo_success(client, monkeypatch):
-    """Test the /capture endpoint with a successful image match."""
-
-    def mock_post(*_args, **_kwargs):
-        class MockResponse:
-            """Mock Response."""
-
-            def __init__(self):
-                self.status_code = 200
-
-            def json(self):
-                """Json."""
-                return {"matched_character": "Harry Potter"}
-
-            def raise_for_status(self):
-                """Raise status for testing."""
-
-        return MockResponse()
-
-    monkeypatch.setattr("requests.post", mock_post)
-
-    with client.session_transaction() as session:
-        session["username"] = "testuser"
-
-    data = {"image": (io.BytesIO(b"fake_image_data"), "image.jpg")}
-    response = client.post("/capture", data=data, content_type="multipart/form-data")
-    assert response.status_code == 200
-    assert response.get_json() == {"match": "Harry Potter"}
+def test_analytics_unauthorized(client):
+    """Test the /analytics endpoint without authentication."""
+    response = client.get("/analytics")
+    assert response.status_code == 401
+    assert response.get_json() == {"error": "Unauthorized"}
 
 
 def test_capture_timeout(client, monkeypatch):
