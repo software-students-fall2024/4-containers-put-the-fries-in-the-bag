@@ -4,7 +4,8 @@ This is the updated web application code.
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
+import pytz
 
 from flask import (
     Flask,
@@ -151,12 +152,12 @@ def capture():
         upsert=True,
     )
 
-    # Save match history with timestamp
+    # Save match history with UTC timestamp
     db.history.insert_one(
         {
             "username": session["username"],
             "matched_character": matched_character,
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
         }
     )
 
@@ -169,17 +170,24 @@ def history():
     if "username" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
-    # Fetch history records from the database, sorted by timestamp (most recent first)
+    eastern = pytz.timezone("America/New_York")
     history_records = db.history.find({"username": session["username"]}).sort(
         "timestamp", -1
     )
-    history_list = [
-        {
-            "character": record["matched_character"],
-            "timestamp": record["timestamp"].isoformat(),
-        }
-        for record in history_records
-    ]
+    history_list = []
+
+    for record in history_records:
+        timestamp = record["timestamp"]
+        if isinstance(timestamp, str):
+            dt_object = datetime.fromisoformat(timestamp)
+        else:
+            dt_object = timestamp
+
+        local_time = dt_object.astimezone(eastern).strftime("%Y-%m-%d %H:%M:%S")
+        history_list.append(
+            {"character": record["matched_character"], "timestamp": local_time}
+        )
+
     return jsonify({"history": history_list})
 
 
