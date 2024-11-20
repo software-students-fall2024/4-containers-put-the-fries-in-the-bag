@@ -2,6 +2,8 @@
 Machine learning code for face recognition
 """
 
+# pylint: disable=broad-exception-caught
+
 import os
 import logging
 import face_recognition
@@ -61,8 +63,7 @@ def recognize_face():
             min_distance = distances[min_distance_index]
             matched_character = names[min_distance_index]
 
-            # Optional: Set a threshold for acceptable distance
-            threshold = 0.8  # You can adjust this value
+            threshold = 0.8
             if min_distance > threshold:
                 matched_character = "No match found"
 
