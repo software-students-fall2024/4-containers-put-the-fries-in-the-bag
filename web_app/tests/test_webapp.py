@@ -100,7 +100,7 @@ def test_register_existing_user(client, monkeypatch):
 def test_logout(client):
     """Test the /logout endpoint."""
     with client.session_transaction() as session:
-        session["username"] = "testuser"  # Simulate logged-in user
+        session["username"] = "testuser"
 
     response = client.get("/logout", follow_redirects=True)
     assert response.status_code == 200
@@ -117,7 +117,7 @@ def test_homepage_redirect_without_login(client):
 def test_capture_photo_without_image_data(client):
     """Test the /capture endpoint without providing image data."""
     with client.session_transaction() as session:
-        session["username"] = "testuser"  # Simulate logged-in user
+        session["username"] = "testuser"
 
     response = client.post("/capture", data={})
     assert response.status_code == 400
@@ -153,3 +153,10 @@ def test_capture_timeout(client, monkeypatch):
     response = client.post("/capture", data=data, content_type="multipart/form-data")
     assert response.status_code == 500
     assert response.get_json() == {"error": "Failed to process image"}
+
+
+def test_history_unauthorized(client):
+    """Test the /history endpoint without authentication."""
+    response = client.get("/history")
+    assert response.status_code == 401
+    assert response.get_json() == {"error": "Unauthorized"}
