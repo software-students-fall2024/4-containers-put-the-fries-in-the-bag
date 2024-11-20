@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Homepage</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js library -->
 </head>
 <body>
     <div class="page-layout">
@@ -15,15 +16,61 @@
         <div id="result">
             <!-- Matched character will be displayed here -->
         </div>
+        <div class="chart-container">
+            <h3>Match Distribution</h3>
+            <canvas id="matchChart"></canvas>
+        </div>
         <a href="{{ url_for('logout') }}" id="logoutButton" class="btn">Logout</a>
     </div>
 
-    <!-- Embedded JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const video = document.getElementById('video');
             const captureBtn = document.getElementById('capture');
             const resultDiv = document.getElementById('result');
+            const ctx = document.getElementById('matchChart').getContext('2d');
+
+            // Initialize Chart.js bar chart
+            const matchChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Match Percentage',
+                        data: [],
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: (value) => `${value}%`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Fetch analytics data and update chart
+            function updateChart() {
+                fetch('/analytics')
+                    .then(response => response.json())
+                    .then(data => {
+                        const labels = data.data.map(item => item.character);
+                        const percentages = data.data.map(item => item.percentage);
+
+                        matchChart.data.labels = labels;
+                        matchChart.data.datasets[0].data = percentages;
+                        matchChart.update();
+                    })
+                    .catch(error => console.error('Error fetching analytics:', error));
+            }
 
             // Access webcam
             navigator.mediaDevices.getUserMedia({ video: true })
@@ -33,15 +80,14 @@
                     resultDiv.innerHTML = 'Error accessing webcam: ' + error.message;
                 });
 
+            // Capture photo and process match
             captureBtn.addEventListener('click', () => {
-                // Create a canvas to capture the image
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 const context = canvas.getContext('2d');
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                // Convert canvas image to Blob
                 canvas.toBlob((blob) => {
                     if (blob) {
                         const formData = new FormData();
@@ -57,6 +103,7 @@
                                 resultDiv.innerHTML = 'Error: ' + data.error;
                             } else {
                                 resultDiv.innerHTML = `Matched Character: ${data.match}`;
+                                updateChart(); // Refresh chart after match
                             }
                         })
                         .catch(error => {
@@ -68,6 +115,9 @@
                     }
                 }, 'image/png');
             });
+
+            // Initialize chart data
+            updateChart();
         });
     </script>
 </body>

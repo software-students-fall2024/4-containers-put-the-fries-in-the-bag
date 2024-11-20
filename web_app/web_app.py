@@ -117,7 +117,7 @@ def capture():
                     image_file.content_type,
                 )
             },
-            timeout=20,  # Increased timeout to accommodate processing time
+            timeout=20,
         )
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
@@ -131,7 +131,48 @@ def capture():
 
     matched_character = result.get("matched_character", "No match found")
 
+    # Update analytics in the database
+    user_analytics = db.analytics.find_one({"username": session["username"]})
+    if not user_analytics:
+        user_analytics = {"username": session["username"], "total": 0, "characters": {}}
+
+    user_analytics["total"] += 1
+    if matched_character in user_analytics["characters"]:
+        user_analytics["characters"][matched_character] += 1
+    else:
+        user_analytics["characters"][matched_character] = 1
+
+    db.analytics.update_one(
+        {"username": session["username"]},
+        {"$set": user_analytics},
+        upsert=True,
+    )
+
     return jsonify({"match": matched_character})
+
+
+@app.route("/analytics", methods=["GET"])
+def analytics():
+    """Provide analytics data for the logged-in user."""
+    if "username" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_analytics_data = db.analytics.find_one({"username": session["username"]})
+    if (
+        not user_analytics_data
+        or "characters" not in user_analytics_data
+        or user_analytics_data["total"] == 0
+    ):
+        return jsonify({"data": []})
+
+    data = [
+        {
+            "character": character,
+            "percentage": (count / user_analytics_data["total"]) * 100,
+        }
+        for character, count in user_analytics_data["characters"].items()
+    ]
+    return jsonify({"data": data})
 
 
 if __name__ == "__main__":
