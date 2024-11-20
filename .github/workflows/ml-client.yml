@@ -38,4 +38,4 @@ jobs:
 
     - name: Run tests
       working-directory: ./machine_learning_client
-      run: pipenv run pytest
+      run: pipenv run pytest tests/
