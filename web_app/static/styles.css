@@ -1,7 +1,5 @@
-/* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-/* Global Styles */
 body {
     margin: 0;
     padding: 0;
@@ -12,7 +10,6 @@ body {
     line-height: 1.6;
 }
 
-/* Centering Utility Class */
 .page-layout {
     max-width: 800px;
     margin: 50px auto;
@@ -20,7 +17,6 @@ body {
     text-align: center;
 }
 
-/* Header Styles */
 .site-header {
     width: 100%;
     background-color: #002855;
@@ -49,7 +45,6 @@ body {
     background-color: #0056b3;
 }
 
-/* Button Styles */
 #logoutButton {
     background-color: #d32f2f;
 }
@@ -77,7 +72,6 @@ input[type="button"]:hover {
     background-color: #004080;
 }
 
-/* Input Styles */
 input[type="text"],
 input[type="password"],
 input[type="email"] {
@@ -98,7 +92,6 @@ input[type="email"]:focus {
     box-shadow: 0 0 4px rgba(0, 40, 85, 0.4);
 }
 
-/* Form Styles */
 form {
     width: 100%;
     max-width: 400px;
@@ -121,19 +114,17 @@ form label {
     color: #222;
 }
 
-/* Main Content Styles */
 .main-content {
     display: flex;
     align-items: flex-start;
-    justify-content: center; /* Center the content horizontally */
-    flex-wrap: wrap; /* Allow wrapping on small screens */
+    justify-content: center; 
+    flex-wrap: wrap; 
     margin-top: 1rem;
 }
 
-/* Face Capture and Preview Box Styles */
 #faceCapture,
 #previewBox {
-    flex: 1 1 300px; /* Flex-grow, flex-shrink, flex-basis */
+    flex: 1 1 300px;
     margin: 10px;
     max-width: 400px;
 }
@@ -146,13 +137,11 @@ form label {
     border-radius: 5px;
 }
 
-/* Capture Button Container */
 .capture-button-container {
     text-align: center;
     margin-top: 20px;
 }
 
-/* Result Styles */
 #result {
     margin-top: 20px;
     font-size: 18px;
@@ -160,7 +149,6 @@ form label {
     color: #004080;
 }
 
-/* History Section */
 #historySection {
     width: 100%;
     max-width: 600px;
@@ -178,7 +166,6 @@ form label {
     border-bottom: 1px solid #ccc;
 }
 
-/* Chart Container */
 .chart-container {
     width: 100%;
     max-width: 600px;
@@ -190,7 +177,6 @@ canvas {
     height: auto !important;
 }
 
-/* Typography Styles */
 h1 {
     font-size: 2rem;
     margin-top: 1rem;
@@ -209,7 +195,6 @@ h3 {
     color: #004080;
 }
 
-/* Link Styles */
 a {
     color: #004080;
     text-decoration: none;
@@ -219,7 +204,6 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Messages Styles */
 .messages {
     list-style-type: none;
     padding: 0;
@@ -235,7 +219,6 @@ a:hover {
     color: #d32f2f;
 }
 
-/* Responsive Media Queries */
 @media screen and (max-width: 600px) {
     .page-layout {
         padding: 0 10px;
@@ -284,7 +267,6 @@ a:hover {
     }
 }
 
-/* Capture Button Container */
 .capture-button-container {
     text-align: center;
     margin-top: 20px;
