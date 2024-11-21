@@ -80,7 +80,7 @@
                             historyList.innerHTML = ''; // Clear previous history
                             data.history.forEach(item => {
                                 const li = document.createElement('li');
-                                li.textContent = `${item.character} - ${new Date(item.timestamp).toLocaleString()}`;
+                                li.textContent = `${capitalizeFirstLetter(item.character)} - ${new Date(item.timestamp).toLocaleString()}`;
                                 historyList.appendChild(li);
                             });
                         }
@@ -94,6 +94,11 @@
             const video = document.getElementById('video');
             const matchedImage = document.getElementById('matchedImage');
             const ctx = document.getElementById('matchChart').getContext('2d');
+
+            // Helper function to capitalize the first letter
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
 
             // Access webcam
             navigator.mediaDevices.getUserMedia({ video: true })
@@ -125,7 +130,8 @@
                             if (data.error) {
                                 resultDiv.innerHTML = 'Error: ' + data.error;
                             } else {
-                                resultDiv.innerHTML = `Matched Character: ${data.match}`;
+                                const matchedName = capitalizeFirstLetter(data.match);
+                                resultDiv.innerHTML = `Matched Character: ${matchedName}`;
                                 // Update the matched image
                                 matchedImage.src = '/images/' + data.match + '.jpg';
                             }
@@ -172,7 +178,7 @@
                 fetch('/analytics')
                     .then(response => response.json())
                     .then(data => {
-                        const labels = data.data.map(item => item.character);
+                        const labels = data.data.map(item => capitalizeFirstLetter(item.character));
                         const percentages = data.data.map(item => item.percentage);
 
                         matchChart.data.labels = labels;
