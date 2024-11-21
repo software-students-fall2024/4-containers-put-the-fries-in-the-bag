@@ -39,18 +39,14 @@ users_collection = db["users"]
 
 ml_client_url = "http://ml-client:5000"
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
 
 @app.route("/images/<filename>")
 def serve_image(filename):
     """Serve images from the /images directory."""
-    # Sanitize the filename to prevent directory traversal attacks
     safe_filename = secure_filename(filename)
-    image_directory = (
-        "/app/images"  # Update this path to the images directory inside the container
-    )
+    image_directory = "/app/images"
 
     file_path = os.path.join(image_directory, safe_filename)
 
@@ -129,7 +125,6 @@ def capture():
 
     image_file = request.files["image"]
 
-    # Send image to ML client for face recognition
     try:
         response = requests.post(
             f"{ml_client_url}/recognize_face",
@@ -154,7 +149,6 @@ def capture():
 
     matched_character = result.get("matched_character", "No match found")
 
-    # Update analytics in the database
     user_analytics = db.analytics.find_one({"username": session["username"]})
     if not user_analytics:
         user_analytics = {"username": session["username"], "total": 0, "characters": {}}
@@ -171,7 +165,6 @@ def capture():
         upsert=True,
     )
 
-    # Save match history with UTC timestamp
     db.history.insert_one(
         {
             "username": session["username"],
