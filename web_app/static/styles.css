@@ -50,6 +50,9 @@ body {
 }
 
 /* Button Styles */
+#logoutButton {
+    background-color: #d32f2f;
+}
 .btn,
 input[type="submit"],
 input[type="button"] {
@@ -118,30 +121,36 @@ form label {
     color: #222;
 }
 
-/* Face Capture Styles */
-#faceCapture {
+/* Main Content Styles */
+.main-content {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: center; /* Center the content horizontally */
+    flex-wrap: wrap; /* Allow wrapping on small screens */
     margin-top: 1rem;
-    width: 100%;
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
-#video {
+/* Face Capture and Preview Box Styles */
+#faceCapture,
+#previewBox {
+    flex: 1 1 300px; /* Flex-grow, flex-shrink, flex-basis */
+    margin: 10px;
+    max-width: 400px;
+}
+
+#faceCapture video,
+#previewBox img {
     width: 100%;
     height: auto;
     border: 2px solid #ccc;
     border-radius: 5px;
 }
 
-#capture {
-    margin-top: 1rem;
-    width: auto; /* Ensure the button doesn't stretch full width */
+/* Capture Button Container */
+.capture-button-container {
+    text-align: center;
+    margin-top: 20px;
 }
-
 
 /* Result Styles */
 #result {
@@ -262,4 +271,21 @@ a:hover {
     h3 {
         font-size: 1.1rem;
     }
+
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #faceCapture,
+    #previewBox {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* Capture Button Container */
+.capture-button-container {
+    text-align: center;
+    margin-top: 20px;
 }

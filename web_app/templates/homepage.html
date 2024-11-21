@@ -9,12 +9,34 @@
 <body>
     <div class="page-layout">
         <h2>Welcome to HarryFace, {{ username }}</h2>
-        <div id="faceCapture">
-            <video id="video" autoplay></video>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Face Capture Section -->
+            <div id="faceCapture">
+                <video id="video" autoplay></video>
+            </div>
+
+            <!-- Preview Box -->
+            <div id="previewBox">
+                <img id="matchedImage" src="{{ url_for('static', filename='placeholder.jpg') }}" alt="Matched Image">
+            </div>
+        </div>
+
+        <!-- Capture Photo Button -->
+        <div class="capture-button-container">
             <button type="button" id="capture" class="btn">Capture Photo</button>
         </div>
+
+        <!-- Result Section -->
         <div id="result">
             <!-- Matched character will be displayed here -->
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-container">
+            <h3>Match Distribution</h3>
+            <canvas id="matchChart"></canvas>
         </div>
 
         <!-- Match History Section -->
@@ -28,144 +50,140 @@
             </ul>
         </div>
 
-        <div class="chart-container">
-            <h3>Match Distribution</h3>
-            <canvas id="matchChart"></canvas>
-        </div>
+        <!-- Logout Button -->
         <a href="{{ url_for('logout') }}" id="logoutButton" class="btn">Logout</a>
     </div>
 
+    <!-- JavaScript -->
     <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const historyList = document.getElementById('historyList');
-    const historySection = document.getElementById('historySection');
-    const checkHistoryBtn = document.getElementById('checkHistory');
-    const captureBtn = document.getElementById('capture');
-    const resultDiv = document.getElementById('result');
-    const video = document.getElementById('video');
-    const ctx = document.getElementById('matchChart').getContext('2d');
+        document.addEventListener('DOMContentLoaded', function () {
+            const historyList = document.getElementById('historyList');
+            const historySection = document.getElementById('historySection');
+            const checkHistoryBtn = document.getElementById('checkHistory');
 
-    // Toggle history section visibility
-    checkHistoryBtn.addEventListener('click', () => {
-        const isVisible = historySection.style.display === 'block';
-        historySection.style.display = isVisible ? 'none' : 'block';
+            // Toggle history section visibility
+            checkHistoryBtn.addEventListener('click', () => {
+                const isVisible = historySection.style.display === 'block';
+                historySection.style.display = isVisible ? 'none' : 'block';
 
-        if (!isVisible) {
-            updateHistory(); // Fetch and update history only when shown
-        }
-    });
+                if (!isVisible) {
+                    updateHistory(); // Fetch and update history only when shown
+                }
+            });
 
-    function updateHistory() {
-    fetch('/history')
-        .then(response => response.json())
-        .then(data => {
-            if (data.history) {
-                historyList.innerHTML = ''; // Clear previous history
-                data.history.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = `${item.character} - ${item.timestamp}`;
-                    historyList.appendChild(li);
-                });
+            // Fetch match history and update the list
+            function updateHistory() {
+                fetch('/history')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.history) {
+                            historyList.innerHTML = ''; // Clear previous history
+                            data.history.forEach(item => {
+                                const li = document.createElement('li');
+                                li.textContent = `${item.character} - ${new Date(item.timestamp).toLocaleString()}`;
+                                historyList.appendChild(li);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error fetching history:', error));
             }
-        })
-        .catch(error => console.error('Error fetching history:', error));
-}
 
+            // Initialize the rest of the page
+            const captureBtn = document.getElementById('capture');
+            const resultDiv = document.getElementById('result');
+            const video = document.getElementById('video');
+            const matchedImage = document.getElementById('matchedImage');
+            const ctx = document.getElementById('matchChart').getContext('2d');
 
-
-    // Access webcam
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { video.srcObject = stream; })
-        .catch(error => {
-            console.error('Error accessing webcam:', error);
-            resultDiv.innerHTML = 'Error accessing webcam: ' + error.message;
-        });
-
-    // Capture photo and process match
-    captureBtn.addEventListener('click', () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        canvas.toBlob((blob) => {
-            if (blob) {
-                const formData = new FormData();
-                formData.append('image', blob, 'capture.png');
-
-                fetch('/capture', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        resultDiv.innerHTML = 'Error: ' + data.error;
-                    } else {
-                        resultDiv.innerHTML = `Matched Character: ${data.match}`;
-                        updateChart(); // Refresh analytics chart
-                        updateHistory(); // Refresh history after match
-                    }
-                })
+            // Access webcam
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => { video.srcObject = stream; })
                 .catch(error => {
-                    console.error('Error:', error);
-                    resultDiv.innerHTML = 'An error occurred while processing the image.';
+                    console.error('Error accessing webcam:', error);
+                    resultDiv.innerHTML = 'Error accessing webcam: ' + error.message;
                 });
-            } else {
-                resultDiv.innerHTML = 'Failed to capture image.';
-            }
-        }, 'image/png');
-    });
 
-    // Chart.js setup
-    const matchChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Match Percentage',
-                data: [],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: (value) => `${value}%`
+            // Capture photo and process match
+            captureBtn.addEventListener('click', () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const formData = new FormData();
+                        formData.append('image', blob, 'capture.png');
+
+                        fetch('/capture', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                resultDiv.innerHTML = 'Error: ' + data.error;
+                            } else {
+                                resultDiv.innerHTML = `Matched Character: ${data.match}`;
+                                // Update the matched image
+                                matchedImage.src = '/images/' + data.match + '.jpg';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            resultDiv.innerHTML = 'An error occurred while processing the image.';
+                        });
+                    } else {
+                        resultDiv.innerHTML = 'Failed to capture image.';
+                    }
+                }, 'image/png');
+            });
+
+            // Chart.js setup
+            const matchChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Match Percentage',
+                        data: [],
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: (value) => `${value}%`
+                            }
+                        }
                     }
                 }
+            });
+
+            // Fetch analytics data and update chart
+            function updateChart() {
+                fetch('/analytics')
+                    .then(response => response.json())
+                    .then(data => {
+                        const labels = data.data.map(item => item.character);
+                        const percentages = data.data.map(item => item.percentage);
+
+                        matchChart.data.labels = labels;
+                        matchChart.data.datasets[0].data = percentages;
+                        matchChart.update();
+                    })
+                    .catch(error => console.error('Error fetching analytics:', error));
             }
-        }
-    });
 
-    // Fetch analytics data and update chart
-    function updateChart() {
-        fetch('/analytics')
-            .then(response => response.json())
-            .then(data => {
-                const labels = data.data.map(item => item.character);
-                const percentages = data.data.map(item => item.percentage);
-
-                matchChart.data.labels = labels;
-                matchChart.data.datasets[0].data = percentages;
-                matchChart.update();
-            })
-            .catch(error => console.error('Error fetching analytics:', error));
-    }
-
-    // Initialize chart and history data
-    updateChart();
-    updateHistory();
-});
-
-
+            updateChart();
+        });
     </script>
 </body>
 </html>

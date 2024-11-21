@@ -1,3 +1,4 @@
+version: '3'
 services:
   web-app:
     build:
@@ -11,6 +12,8 @@ services:
       - mongodb
       - ml-client
     command: ["pipenv", "run", "python", "web_app.py"]
+    volumes:
+      - ./images:/app/images  # Mount the images directory
 
   ml-client:
     build:
@@ -23,6 +26,8 @@ services:
     depends_on:
       - mongodb
     command: ["pipenv", "run", "python", "ml_client.py"]
+    volumes:
+      - ./images:/app/images  # Mount the images directory
 
   mongodb:
     image: mongo
