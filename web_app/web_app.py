@@ -16,12 +16,15 @@ from flask import (
     flash,
     session,
     jsonify,
+    send_from_directory,
+    abort,
 )
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
 import bcrypt
 import requests
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -38,6 +41,22 @@ ml_client_url = "http://ml-client:5000"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
+
+@app.route("/images/<filename>")
+def serve_image(filename):
+    """Serve images from the /images directory."""
+    # Sanitize the filename to prevent directory traversal attacks
+    safe_filename = secure_filename(filename)
+    image_directory = (
+        "/app/images"  # Update this path to the images directory inside the container
+    )
+
+    file_path = os.path.join(image_directory, safe_filename)
+
+    if os.path.isfile(file_path):
+        return send_from_directory(image_directory, safe_filename)
+    abort(404)
 
 
 @app.route("/")
