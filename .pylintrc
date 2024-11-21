@@ -1,3 +1,6 @@
 [MESSAGES CONTROL]
 # Disable specific pylint messages
 disable = C0103, C0413, E0401, E0402 
+
+[MASTER]
+ignore=README.md
