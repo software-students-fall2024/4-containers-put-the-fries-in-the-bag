@@ -56,8 +56,7 @@ def serve_image(filename):
 
     if os.path.isfile(file_path):
         return send_from_directory(image_directory, safe_filename)
-    else:
-        abort(404)
+    abort(404)
 
 
 @app.route("/")
