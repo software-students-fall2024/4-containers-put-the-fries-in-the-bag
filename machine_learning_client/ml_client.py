@@ -12,12 +12,10 @@ import numpy as np
 
 app = Flask(__name__)
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# Global variables for encodings and names
 ENCODINGS = []
 NAMES = []
 ENCODINGS_LOADED = False
@@ -46,7 +44,7 @@ def load_character_encodings():
                 face_enc = face_recognition.face_encodings(image)
                 if face_enc:
                     encodings.append(face_enc[0])
-                    names.append(os.path.splitext(filename)[0])  # Remove file extension
+                    names.append(os.path.splitext(filename)[0])
                     logging.info("Loaded encoding for: %s", filename)
                 else:
                     logging.warning("No face found in image: %s", filename)
@@ -55,7 +53,6 @@ def load_character_encodings():
     return encodings, names
 
 
-# Initialize encodings at module load
 ENCODINGS, NAMES = load_character_encodings()
 ENCODINGS_LOADED = True
 logging.info("Character encodings loaded. Total: %d", len(ENCODINGS))
@@ -73,7 +70,6 @@ def recognize_face():
 
     file = request.files["file"]
     try:
-        # Load uploaded image
         test_image = face_recognition.load_image_file(file)
         test_encodings = face_recognition.face_encodings(test_image)
 
@@ -82,11 +78,9 @@ def recognize_face():
 
         test_encoding = test_encodings[0]
 
-        # Ensure encodings are preloaded
         if not ENCODINGS_LOADED:
             return jsonify({"error": "Encodings not loaded"}), 500
 
-        # Compute face distances
         distances = face_recognition.face_distance(ENCODINGS, test_encoding)
         if len(distances) == 0:
             return jsonify({"matched_character": "No match found"})
@@ -94,7 +88,6 @@ def recognize_face():
         min_distance_index = np.argmin(distances)
         min_distance = distances[min_distance_index]
 
-        # Check against threshold
         if min_distance > THRESHOLD:
             matched_character = "No match found"
         else:
