@@ -11,74 +11,60 @@
         <h2>Welcome to HarryFace, {{ username }}</h2>
         <h3>Capture photo and see which Harry Potter character you look like! 🧙🏼‍♂️ 🪄🔮</h3>
 
-        <!-- Result Section -->
         <div id="result">
-            <!-- Matched character will be displayed here -->
         </div>
 
-        <!-- Main Content Area -->
         <div class="main-content">
-            <!-- Face Capture Section -->
             <div id="faceCapture">
                 <video id="video" autoplay></video>
             </div>
 
-            <!-- Preview Box -->
             <div id="previewBox">
                 <img id="matchedImage" src="{{ url_for('static', filename='placeholder.jpg') }}" alt="Matched Image">
             </div>
         </div>
 
-        <!-- Capture Photo Button -->
         <div class="capture-button-container">
             <button type="button" id="capture" class="btn">Capture Photo</button>
         </div>
 
-        <!-- Chart Section -->
         <div class="chart-container">
             <h3>Match Distribution</h3>
             <canvas id="matchChart"></canvas>
         </div>
 
-        <!-- Match History Section -->
         <div id="historyToggle">
             <button type="button" id="checkHistory" class="btn">Check History</button>
         </div>
         <div id="historySection" style="display: none;">
             <h3>Match History</h3>
             <ul id="historyList">
-                <!-- History items will be appended here -->
             </ul>
         </div>
-
-        <!-- Logout Button -->
         <a href="{{ url_for('logout') }}" id="logoutButton" class="btn">Logout</a>
     </div>
 
-    <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const historyList = document.getElementById('historyList');
             const historySection = document.getElementById('historySection');
             const checkHistoryBtn = document.getElementById('checkHistory');
 
-            // Toggle history section visibility
             checkHistoryBtn.addEventListener('click', () => {
                 const isVisible = historySection.style.display === 'block';
                 historySection.style.display = isVisible ? 'none' : 'block';
 
                 if (!isVisible) {
-                    updateHistory(); // Fetch and update history only when shown
+                    updateHistory();
                 }
             });
 
-            // Fetch match history and update the list
             function updateHistory() {
                 fetch('/history')
                     .then(response => response.json())
                     .then(data => {
                         if (data.history) {
-                            historyList.innerHTML = ''; // Clear previous history
+                            historyList.innerHTML = '';
                             data.history.forEach(item => {
                                 const li = document.createElement('li');
                                 li.textContent = `${capitalizeFirstLetter(item.character)} - ${new Date(item.timestamp).toLocaleString()}`;
@@ -89,19 +75,16 @@
                     .catch(error => console.error('Error fetching history:', error));
             }
 
-            // Initialize the rest of the page
             const captureBtn = document.getElementById('capture');
             const resultDiv = document.getElementById('result');
             const video = document.getElementById('video');
             const matchedImage = document.getElementById('matchedImage');
             const ctx = document.getElementById('matchChart').getContext('2d');
 
-            // Helper function to capitalize the first letter
             function capitalizeFirstLetter(string) {
                 return string.charAt(0).toUpperCase() + string.slice(1);
             }
 
-            // Access webcam
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => { video.srcObject = stream; })
                 .catch(error => {
@@ -109,7 +92,6 @@
                     resultDiv.innerHTML = 'Error accessing webcam: ' + error.message;
                 });
 
-            // Capture photo and process match
             captureBtn.addEventListener('click', () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
@@ -133,7 +115,6 @@
                             } else {
                                 const matchedName = capitalizeFirstLetter(data.match);
                                 resultDiv.innerHTML = `Matched Character: ${matchedName}`;
-                                // Update the matched image
                                 matchedImage.src = '/images/' + data.match + '.jpg';
                             }
                         })
@@ -147,7 +128,6 @@
                 }, 'image/png');
             });
 
-            // Chart.js setup
             const matchChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -174,7 +154,6 @@
                 }
             });
 
-            // Fetch analytics data and update chart
             function updateChart() {
                 fetch('/analytics')
                     .then(response => response.json())
